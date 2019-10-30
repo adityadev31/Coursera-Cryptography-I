@@ -1,0 +1,170 @@
+--------------------------------------------------------------------------------
+1.
+
+Ciphertexts that are the same length as their corresponding plaintext are not
+MACed, so they cannot gaurentee authenticated encryption.  Therefore public-key
+systems with "short" ciphertexts can never be secure.
+
+--------------------------------------------------------------------------------
+2.
+
+Suppose (G, E, D) is a deterministic public key encryption system.  An attacker
+can win the CPA game by submitting any message pair (m0, m1) with m0 != m1 to
+receive challenge ciphertext c.  He then encrypts both m0 and m1 to get c0,c1.
+He then outputs b' = 1 if c == 1 else 0.  He wins the game with advantage 1.
+He can use the same strategy to win the CCA game.
+
+Therefore no deterministic public key encryption system can be semantically
+secure.
+
+--------------------------------------------------------------------------------
+3.
+
+Let (Gen, E, D) be CCA secure pk encryption system with M = {0,1}^128.
+
+>E' = (E(pk,m), 0^128) and D'(sk, (c1,c2)) = D(sk,c1)
+Phase 1:
+    Attacker sends nothing.
+Challenge:
+    Attacker picks any distinct m0, m1 with E(pk,m0) = c0 and E(pk,m1)=c1.
+    Attacker sends (m0,m1) to receive (cb, 0^128)
+Phase 2:
+    Attacker sends (cb, 1^128) to receive D(sk, cb) from which he determines b
+    with advantage 1.
+So the system is not CCA secure.
+
+>E' = (E(pk,m), E(pk,m)) and D'(sk, (c1,c2)) = c1 == c2 ? D(k2, c1) : bottom
+Suppose there is a CCA on this system. We can then attack (G,E,D) with the
+following transformations:
+Phase 1:
+    ci -> (ci,ci)
+    mi -> (mi,mi)
+Challenge:
+    (m0,m1) -> ((m0,m0),(m1,m1))
+    E(pk,mb) -> (c,c) := (E(pk,mb), E(pk,mb))
+Phase 2:
+    ci -> (ci,ci)
+    mi -> (mi,mi)
+    Since ci != c, (ci,ci) != (c,c) 
+We then output b' directly to win the CCA game.
+So the system is CCA secure.
+
+>E' = E(pk, m + 1^128) and D' = D(sk,c) + 1^128
+Suppose there is a CCA on this system. We can then attack (G,E,D) with the
+following transformations:
+Phases 1 and 2:
+    ci -> ci
+    mi -> ~mi
+Challenge:
+    (m0,m1) -> (~m0,~m1)
+    E(pk,~mb) -> c (unchanged)
+We then output b' directly to win the CCA game.
+So the system is CCA secure.
+
+>E' = (E(pk,m),E(pk,m)) and D'(sk, (c1,c2))=D(k2,c1)
+Phase 1:
+    Attacker sends nothing.
+Challenge:
+    Attacker picks any distinct m0, m1 with E(pk,m0) = c0 and E(pk,m1) = c1.
+    Attacker sends (m0,m1) to receive (cb, cb)
+Phase 2:
+    Attacker sends (cb, ~cb) to receive D(sk, cb) == mb from which he determines
+    b with advantage 1.
+So the system is not CCA secure.
+
+--------------------------------------------------------------------------------
+4.
+
+Alice aims to find an integer multiple of phi(N).  She knows that
+3*da mod phi(N) = 1
+3*da = k*phi(N) + 1
+3*da - 1 = k*phi(N)
+
+So (3*da - 1) is an integer multiple of phi(N).
+
+--------------------------------------------------------------------------------
+5.
+
+Alice has found a value y with the property that 
+
+{ y = 1 mod p = kp + 1
+{ y = -1 mod q = lq - 1
+
+or
+
+{ y = -1 mod p = kp - 1
+{ y = 1 mod q = lq + 1
+
+Therefoer gcd(N, y-1) is either p or q.  In either case, she can easily find the
+factors of N by letting p = gcd(N, y-1) and q = N/p.
+
+--------------------------------------------------------------------------------
+6.
+
+The totient function is multiplicative, so
+phi(N)
+= phi(pqr)
+= phi(p)phi(q)phi(r)
+= (p-1)(q-1)(r-1)
+
+--------------------------------------------------------------------------------
+7.
+
+We can compute s1^a * s2^b = s^(ar1) * s^(br2) = s^(ar1 + br2) = s^1 = s
+
+--------------------------------------------------------------------------------
+8.
+
+The attacker asks for the encryption of m0 and m1, which are
+E(pk,m0) = (c0,c1) = (g^r, m0*g^xr) for random r
+
+and
+
+E(pk,m1) = (c2,c3) = (g^r, m1*g^xr) for random r
+
+He wishes to compute
+E(pk,m0*m1) = (g^r, m0*m1*g^xr) for random r
+
+He can compute this value by picking a random r in Zn, then computing
+(c0*c2, c1*c3) = (g^(r1+r2), m0*m1*h^(r1+r2))
+
+
+--------------------------------------------------------------------------------
+9.
+
+If a1 + a2 = a, then we can can share the computation of v by recognizing that
+v = u^a = u^(a1 + a2) = u^a1 * u^a2.
+
+So party 1 computes u1 = u^a1, party 2 computes u2 = u^a2, and the results are
+combined using v = u1 * u2.
+
+--------------------------------------------------------------------------------
+10.
+
+Since B2 = (A2/g^b)^r * A0^s and A2 = g^(xy + a),
+
+B1 = (A1^r * g^s) = g^(yr+s) 
+B2 = (A2/g^b)^r * A0^s = g^(r(xy+a-b) + sx)
+
+So considering the exponents
+B1^x = rxy + sx
+B2 = rxy + (ra - rb) + sx
+
+If a == b then 
+B2/B1^x = rxy + (0) + sx - rxy - sx = 0 in the exponent
+
+So she checks that B2/B1^x  == 1
+
+--------------------------------------------------------------------------------
+11.
+
+In the proof of the bounds on Wiener's attack where N=pq, we found that 
+|N - phi(N)| <= p+q <= 3 sqrt(N)
+
+When N is product of 3 primes p,q,r we see that
+phi(N) = pqr - pq - pr - qr + p + q + r - 1
+|N - phi(N)| <= 4*N^(2/3)
+
+Nothing else in the proof changes, so we require d <= N^(1/6)/c
+
+--------------------------------------------------------------------------------

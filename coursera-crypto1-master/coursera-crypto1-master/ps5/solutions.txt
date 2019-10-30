@@ -1,0 +1,203 @@
+--------------------------------------------------------------------------------
+1.
+
+First, Alice contacts the TTP.  At minimum, she must receive from the server
+the shared key encrypted with her own private key, or E(k_a, k_abc).
+
+She must also not send the shared key in the clear.  Therefore the TTP should
+send Alice
+
+E(k_a, k_abc), ticket1 <- E(k_b, k_abc), ticket2 <- E(k_c, k_abc)
+Alice sends ticket1 to Bob and ticket2 to Carol
+
+--------------------------------------------------------------------------------
+2.
+
+> f := g^(x+y)
+This function _is not difficult to compute_. Specifically, an attacker can
+compute f by simply computing g^x * g^y = g^(x+y).
+
+> f := g^(x-y)
+This function _is not difficult to compute_. Specifically, an attacker can
+compute f by simply computing g^x/g^y = g^(x-y).
+
+> f := g^(xy + x + y + 1)
+This function _is difficult to compute_.  Suppose an attacker can compute f.
+He could then compute DH with the equation
+DH(g^x, g^y) = g^xy = f(g^x, g^y)/(g * g^x * g^y)
+
+> f := g^2xy
+This function _is difficult to compute_.  Suppose an attacker can compute f.
+He could then compute DH with the equation
+
+DH(g^x, g^y) = g^xy = sqrt_p(f(g^x, g^y))
+Where sqrt is the square root modulo p, which is "easy" for a finite cyclic
+group Z_p
+
+> f := f^(x(y+1))
+This function _is difficult to compute_.  Suppose an attacker can compute f.
+He could then compute DH with the equation
+
+DH(g^x, g^y) = g^xy = f(g^x, g^y)/g^x
+
+> f := sqrt(g)^(x+y)
+This function _is not difficult_ to compute. Specifically, an attacker could
+compute f from sqrt(g^x * g^y) = f(g^x, g^y)
+
+--------------------------------------------------------------------------------
+3.
+
+Since Bob sends Alice g^(1/b), she has no way of computing g^ab.  The secret
+key must therefore be g^(a/b).  They generate this key as B^a and A^(1/b).  In
+other words:
+
+_secret = g^(a/b).  Alice computes the secret as B^a and Bob computes A^(1/b).
+
+--------------------------------------------------------------------------------
+4.
+
+The additional step _does not_ prevent the MitM attack.  An attacker can
+intercept the initial message from Alice to Bob, and replace pk with pk'.  He
+sends pk' to Bob, who responds with (E(pk', x), S(x, E(pk', x)).  The attacker
+then decrypts E(pk', x) to determine x, computes E(pk, x), and sends
+(E(pk,x),S(x,E(pk,x)) to Alice.  Alice sees that the MAC is correct and
+communicates insecurely with Bob.
+
+--------------------------------------------------------------------------------
+5.
+
+Using some simple python, we see that (a,b) = (10,-3)
+
+In Z_23, 7a + 23b = 7a and 1 = 1.
+So 7a = 1, or _7^-1 = 10_
+
+--------------------------------------------------------------------------------
+6.
+
+3x + 2 = 7
+3x = 5
+
+x = 5 * (3^-1) = 5 * 13 = 65 mod 19
+= 8
+
+--------------------------------------------------------------------------------
+7.
+
+We aim to find |Z*_35|
+Since 35 = 7*5, |Z*_35| = 35 - 7 - 5 + 1 = 24
+
+--------------------------------------------------------------------------------
+8.
+
+We aim to find 2^(10001) mod 11
+Femat's theorem says that x^(p-1) = 1 in Zp.
+
+So consider the ring Z_11.
+x^(10) = 1 in Z_11
+
+We notice that 2^(10001) = 2*2^(10000) = 2*((((2^10)^10)^10)^10) = 2*1 =
+2 in Z_11
+
+--------------------------------------------------------------------------------
+9.
+
+We aim to compute 2^245 mod 35
+
+Since 35 = 7*5, phi(35) = 24.
+
+2^245 = 2^5 * 2^240 = 2^5 * (2^24)^10
+
+From Euler's theorem, we see that 2^24 = 2^phi(35) = 1 in Z_35
+
+So we have 2^245 = 2^5 * 1 =
+32 in Z_35
+
+--------------------------------------------------------------------------------
+10.
+
+We aim to compute ord_35(2)
+By Lagranges theorem, ord_5(2) | 4 and ord_7(2) | 6.
+
+So ord_35(2) | 24.
+Clearly ord_2(35) > 5, so we try 6, 8, and 12.
+
+2^6 = 64 = 29 in Z*_35
+2^8 = 256 = 11 in Z*_35
+2^12 = 4096 = 1 in Z*_35
+
+So ord_2(35) = 12
+
+--------------------------------------------------------------------------------
+11.
+
+The generated groups shown are not trickery.  Since 13 is prime, all postive
+integers less than 13 are in Z*_13. So the generators are 2, 6, and 7.
+
+--------------------------------------------------------------------------------
+12.
+
+We aim to find the solution to x^2 + 4x + 1 = 0 in Z_23
+
+We use the formula
+
+x = (-b +- sqrt(b^2 - 4ac))/2a
+= (-b +- sqrt(b^2 -4ac) * (2a)^-1
+= (-4 +- sqrt(16 - 4)) * 2^-1
+= (-4 +- sqrt(12)) * 2^-1
+
+The inverse of 2 in Z*_23 can be found easily since 2^-1 in Z_N for any odd N
+is just (N+1)/2.  Here N=23, so 2^-1 = 12. Thus we have
+
+= (-4 +- sqrt(12)) * 12
+
+Now since 23 = 3 mod 4, sqrt(12) can be computed using the simple relation
+sqrt(c) = c^((p+1)/4) in Zp where p is 23. So
+sqrt(12) = 12^(24/4) mod 23 = 12^6 mod 23 = 9
+So now we have
+
+x = (-4 +- 9) * 12
+= {5*12, -13*12} = {60, -156}
+= {14, 5} in Z_23
+
+We can verify easily:
+14^2 + 4*14 + 1 = 253 = 23*11
+5^2 + 4*5 + 1 = 46 = 23*2 
+
+--------------------------------------------------------------------------------
+13.
+
+We aim to find 2^(1/11) in Z_19.
+
+We have a theorem that says when gcd(e, p-1) = 1, then c^(1/e) is c^(e^-1)
+Fortunately, 11 and 18 are coprime.  That is, gcd(11, 18) = 1.
+
+So 2^(1/11) = 2^(d), where d = the inverse of 11 in Z_18
+
+The inverse of 11 in Z_18 can be found efficiently using euclid's algorithm.
+We compute 11^-1 = 5
+
+so the 11th root of 2 in Z_19 is 2^5
+= 13 in Z_19.
+
+--------------------------------------------------------------------------------
+14.
+
+We aim to find Dlog_2(5) in Z_13.
+
+That is, we aim to find x so that 5 = 2^x in Z_13.
+
+From inspection of the generated group <2>, we see that 2^9 = 5 in Z_13, so
+Dlog_2(5) = 9 in Z_13.
+
+--------------------------------------------------------------------------------
+15.
+
+Let p be a prime number.
+
+An element g in Z*_p is a generator if |<g>| = |Z*_p|.
+The set of generators of Z*_p is precisely the set {g : |<g>| = |Z*_p| = p-1}
+
+TODO: Finish
+phi(p-1)
+
+--------------------------------------------------------------------------------
